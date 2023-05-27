@@ -14,4 +14,30 @@ public class OrderController {
 	
 	@Autowired
 	private OrderView view;
+
+	public void run() {
+		view.print("<<Flooring Program>>");
+		boolean appRunning = true;
+		
+		while (appRunning) {
+			view.displayMenu();		
+			int action = view.getAction();
+			switch (action) {
+				case 1:
+					break;
+				case 2:
+					break;
+				case 3:
+					break;
+				case 4:
+					break;
+				case 5: 
+					break;
+				case 6: 
+					appRunning = false;
+			}
+		}
+		
+		view.print("See you again!");
+	}
 }
