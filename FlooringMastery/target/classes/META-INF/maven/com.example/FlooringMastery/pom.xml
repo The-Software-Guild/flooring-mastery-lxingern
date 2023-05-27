@@ -36,16 +36,6 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
-		<resources>
-			<resource>
-			     <directory>/FlooringMastery/src/main/resources</directory>
-			     <filtering>true</filtering>
-			     <includes>
-			          <include>*.properties</include>
-			     </includes>
-			</resource>			
-		</resources>
-
 	</build>
 
 </project>

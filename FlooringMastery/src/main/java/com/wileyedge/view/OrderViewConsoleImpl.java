@@ -1,10 +1,16 @@
 package com.wileyedge.view;
 
+import java.time.DateTimeException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Scanner;
 
 import javax.annotation.PreDestroy;
 
 import org.springframework.stereotype.Component;
+
+import com.wileyedge.model.Order;
 
 @Component
 public class OrderViewConsoleImpl implements OrderView {
@@ -45,12 +51,10 @@ public class OrderViewConsoleImpl implements OrderView {
 				if (action < 1 || action > 6) throw new InvalidInputException();
 				inputIsValid = true;
 				System.out.println();
-			} catch (NumberFormatException | InvalidInputException e1) {
-				try {
-					throw new InvalidInputException("Invalid input: Input must be an integer between 1 and 6 (inclusive).\n");					
-				} catch (InvalidInputException e2) {
-					System.out.println(e2.getMessage());
-				}
+			} catch (NumberFormatException e) {
+				System.out.println("Invalid input: Input must be an integer.\n");
+			} catch (InvalidInputException e) {
+					System.out.println("Invalid input: Input must be between 1 and 6 (inclusive).\n");
 			} 
 		}
 		
@@ -60,6 +64,48 @@ public class OrderViewConsoleImpl implements OrderView {
 	@PreDestroy
 	private void closeScanner() {
 		sc.close();
+	}
+
+	@Override
+	public String getDate() {
+		boolean inputIsValid = false;
+		String date = null;
+		
+		while (!inputIsValid) {
+			System.out.print("Please provide the date in the format MMDDYYYY: ");
+			date = sc.nextLine();
+			try {
+				LocalDate.parse(date, DateTimeFormatter.ofPattern("MMddyyyy"));			
+				inputIsValid = true;
+			} catch (DateTimeException e) {
+				System.out.println("Invalid input: Date must be a valid date in the format MMDDYYYY.\n");
+			}
+		}
+		
+		return date;
+	}
+
+	@Override
+	public void displayOrders(List<Order> orders) {
+		System.out.println("----------------------------------------------------------------------------------------------------------------------------------------------------------------");
+		System.out.printf("%-9s | %-20s | %-5s | %-8s | %-12s | %-8s | %-15s | %-10s | %-13s | %-11s | %-8s | %-8s\n", 
+							"Order No.",
+							"Customer Name",
+							"State",
+							"Tax Rate",
+							"Product Type",
+							"Cost PSF",
+							"Labour Cost PSF",
+							"Area",
+							"Material Cost",
+							"Labour Cost",
+							"Tax",
+							"Total"
+							);
+		System.out.println("----------------------------------------------------------------------------------------------------------------------------------------------------------------");
+		orders.stream().forEach(order -> System.out.println(order));
+		System.out.println("----------------------------------------------------------------------------------------------------------------------------------------------------------------");
+		System.out.println();
 	}
 
 }

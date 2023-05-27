@@ -18,5 +18,9 @@ public class State {
 	public BigDecimal getTaxRate() {
 		return taxRate;
 	}
+
+	public String getStateAbbrev() {
+		return stateAbbrev;
+	}
 	
 }

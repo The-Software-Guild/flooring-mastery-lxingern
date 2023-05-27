@@ -9,44 +9,95 @@ public class Order {
 	private static int nextOrderNo;
 	private LocalDate orderDate;
 	private String customerName;
-	private State state;
-	private Product product;
+	private String stateAbbrev;
+	private BigDecimal taxRate;
+	private String productType;
+	private BigDecimal costPerSquareFoot;
+	private BigDecimal labourCostPerSquareFoot;
 	private BigDecimal area;
 	private BigDecimal materialCost;
-	private BigDecimal laborCost;
+	private BigDecimal labourCost;
 	private BigDecimal tax;
 	private BigDecimal total;
-	
-	public Order(LocalDate orderDate, String customerName, State state, Product product, BigDecimal area) {
+
+	public Order(String customerName, String stateAbbrev, BigDecimal taxRate, String productType, BigDecimal area,
+			BigDecimal costPerSquareFoot, BigDecimal labourCostPerSquareFoot) {
 		super();
-		this.orderDate = orderDate;
 		this.customerName = customerName;
-		this.state = state;
-		this.product = product;
+		this.stateAbbrev = stateAbbrev;
+		this.taxRate = taxRate;
+		this.productType = productType;
+		this.costPerSquareFoot = costPerSquareFoot;
+		this.labourCostPerSquareFoot = labourCostPerSquareFoot;
 		this.area = area;
+	}
+
+	public void setOrderNo(int orderNo) {
+		this.orderNo = orderNo;
 	}
 
 	public void setCustomerName(String customerName) {
 		this.customerName = customerName;
 	}
-
-	public void setState(State state) {
-		this.state = state;
-	}
-
-	public void setProduct(Product product) {
-		this.product = product;
+	
+	public void setOrderDate(LocalDate orderDate) {
+		this.orderDate = orderDate;
 	}
 
 	public void setArea(BigDecimal area) {
 		this.area = area;
 	}
 
+	public void setMaterialCost(BigDecimal materialCost) {
+		this.materialCost = materialCost;
+	}
+
+	public void setLabourCost(BigDecimal labourCost) {
+		this.labourCost = labourCost;
+	}
+
+	public void setTotal(BigDecimal total) {
+		this.total = total;
+	}
+	
+	public void setTax(BigDecimal tax) {
+		this.tax = tax;
+	}
+
+	public void calculateDerivedFields() {
+		this.materialCost = this.area.multiply(this.costPerSquareFoot);
+		this.labourCost = this.area.multiply(this.labourCostPerSquareFoot);
+		this.tax = (this.materialCost.add(this.materialCost)).multiply(this.taxRate.divide(new BigDecimal("100")));
+		this.total = this.materialCost.add(this.labourCost).add(this.tax);
+	}
+
+//	@Override
+//	public String toString() {
+//		return "Order [orderNo=" + orderNo + ", orderDate=" + orderDate + ", customerName=" + customerName
+//				+ ", stateAbbrev=" + stateAbbrev + ", taxRate=" + taxRate + ", productType=" + productType
+//				+ ", costPerSquareFoot=" + costPerSquareFoot + ", labourCostPerSquareFoot=" + labourCostPerSquareFoot
+//				+ ", area=" + area + ", materialCost=" + materialCost + ", labourCost=" + labourCost + ", tax=" + tax
+//				+ ", total=" + total + "]";
+//	}
+
 	@Override
 	public String toString() {
-		return "Order [orderNo=" + orderNo + ", orderDate=" + orderDate + ", customerName=" + customerName + ", state="
-				+ state + ", product=" + product + ", area=" + area + ", materialCost=" + materialCost + ", laborCost="
-				+ laborCost + ", tax=" + tax + ", total=" + total + "]";
+		return String.format("%-9d | %-20s | %-5s | %-8s | %-12s | %-8s | %-15s | %-10s | %-13s | %-11s | %-8s | %-8s",
+							orderNo,
+							customerName,
+							stateAbbrev,
+							taxRate.toString(),
+							productType,
+							costPerSquareFoot.toString(),
+							labourCostPerSquareFoot.toString(),
+							area.toString(),
+							materialCost.toString(),
+							labourCost.toString(),
+							tax.toString(),
+							total.toString()
+							);
+
 	}
+	
 	
 }
