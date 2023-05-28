@@ -8,6 +8,12 @@ public class State {
 	private String stateName;
 	private BigDecimal taxRate;
 	
+	public State(String stateAbbrev, BigDecimal taxRate) {
+		super();
+		this.stateAbbrev = stateAbbrev;
+		this.taxRate = taxRate;
+	}
+	
 	public State(String stateAbbrev, String stateName, BigDecimal taxRate) {
 		super();
 		this.stateAbbrev = stateAbbrev;

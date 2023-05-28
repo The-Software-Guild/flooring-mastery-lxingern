@@ -1,16 +1,16 @@
 package com.wileyedge.view;
 
-import java.time.DateTimeException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import javax.annotation.PreDestroy;
 
 import org.springframework.stereotype.Component;
 
 import com.wileyedge.model.Order;
+import com.wileyedge.model.Product;
 
 @Component
 public class OrderViewConsoleImpl implements OrderView {
@@ -34,59 +34,67 @@ public class OrderViewConsoleImpl implements OrderView {
 	}
 
 	@Override
+	public void displayOrders(List<Order> orders) {
+		displayOrderHeader();
+		orders.stream().forEach(order -> System.out.println(order));
+		System.out.println("----------------------------------------------------------------------------------------------------------------------------------------------------------------");
+		System.out.println();
+	}
+	
+	@Override
+	public void displayOrder(Order order) {
+		displayOrderHeader();
+		System.out.println(order);
+		System.out.println("----------------------------------------------------------------------------------------------------------------------------------------------------------------");
+		System.out.println();
+	}
+	
+	
+	@Override
+	public void displayProducts(List<Product> products) {
+		System.out.println("-----------------------------------------");
+		System.out.printf("%-12s | %-8s | %-15s\n", 
+							"Product Type",
+							"Cost PSF",
+							"Labour Cost PSF"
+							);
+		System.out.println("-----------------------------------------");
+		products.stream().forEach(product -> System.out.println(product));
+		System.out.println("-----------------------------------------");
+		System.out.println();
+	}
+	
+	@Override
+	public String getInput(String prompt) {
+		System.out.printf(prompt);
+		String input = sc.nextLine();
+		return input.trim();
+	}
+
+	@Override
+	public <T> T getInput(String prompt, Predicate<String> validator, Function<String, T> converter) {
+		boolean isValid = false;
+		String input = null;
+		T result = null;
+		
+		while (!isValid) {
+			System.out.printf(prompt);
+			input = sc.nextLine();
+			isValid = validator.test(input);
+		}
+		
+		result = converter.apply(input);
+		
+		return result;
+	}
+	
+
+	@Override
 	public void print(String text) {
 		System.out.println(text);
 	}
-
-	@Override
-	public int getAction() {
-		boolean inputIsValid = false;
-		int action = 0;
-		
-		while (!inputIsValid) {
-			System.out.print("Your selection: ");
-			
-			try {
-				action = Integer.parseInt(sc.nextLine());
-				if (action < 1 || action > 6) throw new InvalidInputException();
-				inputIsValid = true;
-				System.out.println();
-			} catch (NumberFormatException e) {
-				System.out.println("Invalid input: Input must be an integer.\n");
-			} catch (InvalidInputException e) {
-					System.out.println("Invalid input: Input must be between 1 and 6 (inclusive).\n");
-			} 
-		}
-		
-		return action;
-	}
 	
-	@PreDestroy
-	private void closeScanner() {
-		sc.close();
-	}
-
-	@Override
-	public String getDate() {
-		boolean inputIsValid = false;
-		String date = null;
-		
-		while (!inputIsValid) {
-			System.out.print("Please provide the date in the format MMDDYYYY: ");
-			date = sc.nextLine();
-			try {
-				LocalDate.parse(date, DateTimeFormatter.ofPattern("MMddyyyy"));			
-				inputIsValid = true;
-			} catch (DateTimeException e) {
-				System.out.println("Invalid input: Date must be a valid date in the format MMDDYYYY.\n");
-			}
-		}
-		
-		return date;
-	}
-
-	@Override
-	public void displayOrders(List<Order> orders) {
+	private void displayOrderHeader() {
 		System.out.println("----------------------------------------------------------------------------------------------------------------------------------------------------------------");
 		System.out.printf("%-9s | %-20s | %-5s | %-8s | %-12s | %-8s | %-15s | %-10s | %-13s | %-11s | %-8s | %-8s\n", 
 							"Order No.",
@@ -103,9 +111,12 @@ public class OrderViewConsoleImpl implements OrderView {
 							"Total"
 							);
 		System.out.println("----------------------------------------------------------------------------------------------------------------------------------------------------------------");
-		orders.stream().forEach(order -> System.out.println(order));
-		System.out.println("----------------------------------------------------------------------------------------------------------------------------------------------------------------");
-		System.out.println();
+	}
+	
+	
+	@PreDestroy
+	private void closeScanner() {
+		sc.close();
 	}
 
 }

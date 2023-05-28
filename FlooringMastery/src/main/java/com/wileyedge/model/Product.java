@@ -17,8 +17,15 @@ public class Product {
 
 	@Override
 	public String toString() {
-		return "Product [productType=" + productType + ", costPerSquareFoot=" + costPerSquareFoot
-				+ ", labourCostPerSquareFoot=" + labourCostPerSquareFoot + "]";
+		return String.format("%-12s | %-8s | %-15s",		
+				productType,
+				costPerSquareFoot.toString(),
+				labourCostPerSquareFoot.toString()
+				);
+	}
+
+	public String getProductType() {
+		return productType;
 	}
 
 	public BigDecimal getCostPerSquareFoot() {
