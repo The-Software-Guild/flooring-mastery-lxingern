@@ -1,4 +1,4 @@
-package com.wileyedge.view;
+package com.wileyedge.exceptions;
 
 public class InvalidInputException extends RuntimeException {
 	

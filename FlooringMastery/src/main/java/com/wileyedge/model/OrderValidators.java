@@ -6,10 +6,26 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Predicate;
 
-import com.wileyedge.view.InvalidInputException;
+import com.wileyedge.exceptions.InvalidInputException;
 
 public final class OrderValidators {
 	
+	public static class ValidateOrderNo implements Predicate<String> {
+
+		@Override
+		public boolean test(String orderNoString) {
+			try {
+				int orderNo = Integer.parseInt(orderNoString);
+				if (orderNo < 0) throw new InvalidInputException("Invalid input: Order no. cannot be negative.\n");
+				return true;
+			} catch (NumberFormatException e) {
+				System.out.println("Invalid input: Input must be an integer.\n");
+			} 
+			return false;
+		}
+
+	}
+
 	public static class ValidateAction implements Predicate<String> {
 
 		@Override

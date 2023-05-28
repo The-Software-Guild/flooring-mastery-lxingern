@@ -15,6 +15,8 @@ public interface OrderView {
 	void displayProducts(List<Product> products);
 	String getInput(String prompt);
 	<T> T getInput(String prompt, Predicate<String> validator, Function<String, T> converter);
+	String getInputForUpdate(String prompt, String currData);
+	<T> T getInputForUpdate(String prompt, String currData, Predicate<String> validator, Function<String, T> converter);
 	void print(String text);
 	
 }

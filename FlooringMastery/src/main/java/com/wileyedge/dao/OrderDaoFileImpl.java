@@ -11,10 +11,13 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Repository;
 
+import com.wileyedge.exceptions.OrderNotFoundException;
 import com.wileyedge.model.Order;
 import com.wileyedge.model.Product;
 import com.wileyedge.model.State;
@@ -46,7 +49,7 @@ public class OrderDaoFileImpl implements OrderDao {
 	}
 	
 	@Override
-	public List<Order> getOrdersForDate(LocalDate date) throws FileNotFoundException {
+	public List<Order> getOrdersForDate(LocalDate date) throws FileNotFoundException, OrderNotFoundException {
 		String orderFilePath = ordersFilePath + ordersFileNamePrefix + date.format(DateTimeFormatter.ofPattern("MMddyyyy")) + ".txt";
 		List<Order> orders = new ArrayList<>();
 		
@@ -75,9 +78,18 @@ public class OrderDaoFileImpl implements OrderDao {
 			}			
 		}
 
+		if (orders.size() == 0) throw new OrderNotFoundException();
 		return orders;
 	}
 	
+	@Override
+	public Order getOrder(LocalDate date, int orderNo) throws FileNotFoundException, OrderNotFoundException {
+		List<Order> ordersForDate = getOrdersForDate(date);
+		Optional<Order> order = ordersForDate.stream().filter(o -> o.getOrderNo() == orderNo).findFirst();
+		if (!order.isPresent()) throw new OrderNotFoundException();
+		return order.get();
+	}
+
 	@Override
 	public void createOrder(Order newOrder) throws IOException {
 		List<Order> ordersForDate = new ArrayList<>();
@@ -88,6 +100,29 @@ public class OrderDaoFileImpl implements OrderDao {
 		
 		ordersForDate.add(newOrder);
 		saveOrders(ordersForDate, newOrder.getOrderDate());
+	}
+	
+	@Override
+	public void updateOrder(Order order) throws IOException {
+		LocalDate date = order.getOrderDate();
+		List<Order> ordersForDate = getOrdersForDate(date);
+		Order orderToUpdate = ordersForDate.stream().filter(o -> o.getOrderNo() == order.getOrderNo()).findFirst().get();
+		orderToUpdate.setCustomerName(order.getCustomerName());
+		orderToUpdate.setState(order.getState());
+		orderToUpdate.setProduct(order.getProduct());
+		orderToUpdate.setArea(order.getArea());
+		orderToUpdate.calculateDerivedFields();
+				
+		saveOrders(ordersForDate, date);
+	}
+	
+	@Override
+	public void deleteOrder(Order orderToRemove) throws IOException {
+		LocalDate date = orderToRemove.getOrderDate();
+		List<Order> ordersForDate = getOrdersForDate(date);
+		ordersForDate = ordersForDate.stream().filter(o -> o.getOrderNo() != orderToRemove.getOrderNo()).collect(Collectors.toList());
+		
+		saveOrders(ordersForDate, date);
 	}
 	
 	private List<Product> loadProducts() throws FileNotFoundException {

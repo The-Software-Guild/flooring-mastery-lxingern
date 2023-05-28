@@ -88,6 +88,14 @@ public class Order {
 		this.customerName = customerName;
 	}
 	
+	public void setState(State state) {
+		this.state = state;
+	}
+
+	public void setProduct(Product product) {
+		this.product = product;
+	}
+
 	public void setOrderDate(LocalDate orderDate) {
 		this.orderDate = orderDate;
 	}

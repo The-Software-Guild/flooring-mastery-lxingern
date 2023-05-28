@@ -1,2 +1,2 @@
 OrderNumber::CustomerName::State::TaxRate::ProductType::CostPerSquareFoot::LaborCostPerSquareFoot::Area::MaterialCost::LaborCost::Tax::Total
-5::Acme, Inc.::WA::9.25::Wood::5.15::4.75::157.23::809.73::746.84::143.98::1700.55
+6::Eye of Michael::KY::6.00::Tile::3.50::4.15::184.23::644.81::764.55::84.56::1493.92

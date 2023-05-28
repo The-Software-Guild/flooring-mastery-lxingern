@@ -1,6 +1,7 @@
 package com.wileyedge.controller;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -8,13 +9,14 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+import com.wileyedge.exceptions.InvalidInputException;
+import com.wileyedge.exceptions.OrderNotFoundException;
 import com.wileyedge.model.Order;
 import com.wileyedge.model.OrderConverters;
 import com.wileyedge.model.OrderValidators;
 import com.wileyedge.model.Product;
 import com.wileyedge.model.State;
 import com.wileyedge.service.OrderService;
-import com.wileyedge.view.InvalidInputException;
 import com.wileyedge.view.OrderView;
 
 @Controller
@@ -42,8 +44,10 @@ public class OrderController {
 					addNewOrder();
 					break;
 				case 3:
+					editOrder();
 					break;
 				case 4:
+					removeOrder();
 					break;
 				case 5: 
 					break;
@@ -56,9 +60,11 @@ public class OrderController {
 	}
 
 	private void displayOrders() {
-		LocalDate date = view.getInput("View orders for date (in format MMDDYYYY): ", new OrderValidators.ValidateDate(), new OrderConverters.ConvertToDate());;
-		List<Order> orders = service.getOrdersForDate(date);
-		if (orders == null) {
+		LocalDate date = view.getInput("View orders for date (in format MMDDYYYY): ", new OrderValidators.ValidateDate(), new OrderConverters.ConvertToDate());
+		List<Order> orders;
+		try {
+			orders = service.getOrdersForDate(date);
+		} catch (FileNotFoundException | OrderNotFoundException e) {
 			view.print("No orders found for that date.\n");
 			return;
 		}
@@ -66,28 +72,92 @@ public class OrderController {
 	}
 	
 	private void addNewOrder() {
-		Order newOrder;
+		Order newOrder = null;
 		try {
 			newOrder = getOrderDetails();
 			newOrder.setOrderNo();
 			newOrder.calculateDerivedFields();
-			view.displayOrder(newOrder);
-			boolean confirmed = view.getInput("Confirm addition of this order? ", new OrderValidators.ValidateConfirmation(), new OrderConverters.ConvertToBoolean());
-			if (!confirmed) {
-				view.print("");
-				return;
-			}
-			
-			boolean saveSuccessful = service.createOrder(newOrder);
-			if (saveSuccessful) {
-				view.print("Order saved successfully.");
-			} else {
-				view.print("Error occurred while trying to save order.");
-			}
-			view.print("");
 		} catch (FileNotFoundException e) {
 			System.out.println("Error occurred. Unable to add order.");
+			return;
 		}
+		
+		view.displayOrder(newOrder);
+		boolean confirmed = view.getInput("Confirm addition of this order? ", new OrderValidators.ValidateConfirmation(), new OrderConverters.ConvertToBoolean());
+		if (!confirmed) {
+			view.print("");
+			return;
+		}
+			
+		try {
+			service.createOrder(newOrder);			
+			view.print("Order saved successfully.\n");
+		} catch (IOException e) {
+			view.print("Error occurred while trying to save order.\n");			
+		}
+	}
+	
+	private void editOrder() {
+		Order order;
+		try {
+			order = getOrder();
+		} catch (FileNotFoundException | OrderNotFoundException e) {
+			view.print("Order not found.\n");
+			return;
+		}
+		
+		try {
+			getOrderDetailsForUpdate(order);
+		} catch (FileNotFoundException e) {
+			System.out.println("Error occurred. Unable to edit order.\n");
+			return;
+		}
+
+		order.calculateDerivedFields();
+		view.displayOrder(order);
+		boolean confirmed = view.getInput("Confirm update of this order? ", new OrderValidators.ValidateConfirmation(), new OrderConverters.ConvertToBoolean());
+		if (!confirmed) {
+			view.print("");
+			return;
+		}
+		
+		try {
+			service.updateOrder(order);
+			view.print("Order saved successfully.\n");			
+		} catch (IOException e) {
+			view.print("Error occurred while trying to save order.\n");			
+		}
+	}
+	
+	private void removeOrder() {
+		Order orderToRemove;
+		try {
+			orderToRemove = getOrder();
+		} catch (FileNotFoundException | OrderNotFoundException e) {
+			view.print("Order not found.\n");
+			return;
+		}
+		
+		view.displayOrder(orderToRemove);
+		boolean confirmed = view.getInput("Confirm deletion of this order? ", new OrderValidators.ValidateConfirmation(), new OrderConverters.ConvertToBoolean());
+		if (!confirmed) {
+			view.print("");
+			return;
+		}
+		
+		try {
+			service.deleteOrder(orderToRemove);
+			view.print("Order deleted successfully.\n");
+		} catch (IOException e) {
+			view.print("Error occurred while trying to delete order.\n");		
+		}
+	}
+	
+	private Order getOrder() throws FileNotFoundException, OrderNotFoundException {
+		LocalDate date = view.getInput("Order date (in format MMDDYYYY): ", new OrderValidators.ValidateDate(), new OrderConverters.ConvertToDate());
+		int orderNo = view.getInput("Order no.: ", new OrderValidators.ValidateOrderNo(), new OrderConverters.ConvertToInt());
+		view.print("");
+		return service.getOrder(date, orderNo);
 	}
 
 	private Order getOrderDetails() throws FileNotFoundException {
@@ -124,6 +194,45 @@ public class OrderController {
 		view.print("");
 
 		return new Order(orderDate, customerName, state, product, area);
+	}
+	
+	private void getOrderDetailsForUpdate(Order order) throws FileNotFoundException {
+		view.print("Please provide the updated order details (leave blank to keep existing data):\n");
+		String customerName = view.getInputForUpdate("Customer name", order.getCustomerName(), new OrderValidators.ValidateName(), new OrderConverters.ConvertToString());
+		if (customerName != null) order.setCustomerName(customerName);
+		
+		State state = null;
+		while (state == null) {
+			String stateString = view.getInputForUpdate("State abbreviation", order.getState().getStateAbbrev());
+			if (stateString.length() == 0) break;
+			try {
+				state = service.findState(stateString);			
+				if (state == null) throw new InvalidInputException("Invalid input: State not recognised or we do not sell in that state.\n");
+			} catch (InvalidInputException e) {
+				System.out.println(e.getLocalizedMessage());
+			}
+		}
+		if (state != null) order.setState(state);
+		
+		List<Product> availableProducts = service.getProducts();
+		view.print("");
+		view.displayProducts(availableProducts);
+		Product product = null;
+		while (product == null) {
+			String productString = view.getInputForUpdate("Product type", order.getProduct().getProductType());
+			if (productString.length() == 0) break;
+			try {
+				product = service.findProduct(productString);			
+				if (product == null) throw new InvalidInputException("Invalid input: Product is not recognised.\n");
+			} catch (InvalidInputException e) {
+				System.out.println(e.getLocalizedMessage());
+			}
+		}
+		if (product != null) order.setProduct(product);
+		
+		BigDecimal area = view.getInputForUpdate("Area", order.getArea().toString(), new OrderValidators.ValidateArea(), new OrderConverters.ConvertToBigDecimal());
+		if (area != null) order.setArea(area);
+		view.print("");
 	}
 
 }

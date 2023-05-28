@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.wileyedge.dao.OrderDao;
+import com.wileyedge.exceptions.OrderNotFoundException;
 import com.wileyedge.model.Order;
 import com.wileyedge.model.Product;
 import com.wileyedge.model.State;
@@ -20,16 +21,12 @@ public class OrderService {
 	@Autowired
 	private OrderDao dao;
 
-	public List<Order> getOrdersForDate(LocalDate date) {
-		List<Order> orders;
-		
-		try {
-			orders = dao.getOrdersForDate(date);			
-		} catch (FileNotFoundException e) {
-			return null;
-		}
-		
-		return orders;
+	public List<Order> getOrdersForDate(LocalDate date) throws FileNotFoundException, OrderNotFoundException {
+		return dao.getOrdersForDate(date);			
+	}
+	
+	public Order getOrder(LocalDate date, int orderNo) throws FileNotFoundException, OrderNotFoundException {
+		return dao.getOrder(date, orderNo);
 	}
 	
 	public List<Product> getProducts() throws FileNotFoundException {
@@ -50,13 +47,16 @@ public class OrderService {
 		return null;
 	}
 
-	public boolean createOrder(Order newOrder) {
-		try {
-			dao.createOrder(newOrder);
-			return true;
-		} catch (IOException e) {
-			return false;
-		}
+	public void createOrder(Order newOrder) throws IOException {
+		dao.createOrder(newOrder);
+	}
+
+	public void updateOrder(Order order) throws IOException {
+		dao.updateOrder(order);
+	}
+
+	public void deleteOrder(Order orderToRemove) throws IOException {
+		dao.deleteOrder(orderToRemove);
 	}
 	
 }

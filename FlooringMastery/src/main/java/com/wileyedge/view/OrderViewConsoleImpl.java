@@ -88,6 +88,31 @@ public class OrderViewConsoleImpl implements OrderView {
 		return result;
 	}
 	
+	@Override
+	public String getInputForUpdate(String prompt, String currData) {
+		System.out.printf(prompt + " (" + currData + "): ");
+		String input = sc.nextLine();
+		return input.trim();
+	}
+	
+	@Override
+	public <T> T getInputForUpdate(String prompt, String currData, Predicate<String> validator, Function<String, T> converter) {
+		boolean isValid = false;
+		String input = null;
+		T result = null;
+		
+		while (!isValid) {
+			System.out.printf(prompt + " (" + currData + "): ");
+			input = sc.nextLine();
+			if (input.trim().length() == 0) return null;
+			isValid = validator.test(input);
+		}
+		
+		result = converter.apply(input);
+		
+		return result;
+	}
+	
 
 	@Override
 	public void print(String text) {
