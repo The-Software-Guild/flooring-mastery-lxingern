@@ -32,18 +32,18 @@ public class OrderService {
 		return orders;
 	}
 	
-	public List<Product> getProducts() {
+	public List<Product> getProducts() throws FileNotFoundException {
 		return dao.getProducts();
 	}
 
-	public State findState(String stateString) {
+	public State findState(String stateString) throws FileNotFoundException {
 		List<State> states = dao.getStates();
 		Optional<State> state = states.stream().filter(s -> s.getStateAbbrev().equals(stateString)).findFirst();
 		if (state.isPresent()) return state.get();
 		return null;
 	}
 
-	public Product findProduct(String productString) {
+	public Product findProduct(String productString) throws FileNotFoundException {
 		List<Product> products = getProducts();
 		Optional<Product> product = products.stream().filter(p -> p.getProductType().equals(productString)).findFirst();
 		if (product.isPresent()) return product.get();

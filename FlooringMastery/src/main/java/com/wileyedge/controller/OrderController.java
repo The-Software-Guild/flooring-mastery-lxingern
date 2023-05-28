@@ -1,5 +1,6 @@
 package com.wileyedge.controller;
 
+import java.io.FileNotFoundException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -65,26 +66,31 @@ public class OrderController {
 	}
 	
 	private void addNewOrder() {
-		Order newOrder = getOrderDetails();
-		newOrder.setOrderNo();
-		newOrder.calculateDerivedFields();
-		view.displayOrder(newOrder);
-		boolean confirmed = view.getInput("Confirm addition of this order? ", new OrderValidators.ValidateConfirmation(), new OrderConverters.ConvertToBoolean());
-		if (!confirmed) {
+		Order newOrder;
+		try {
+			newOrder = getOrderDetails();
+			newOrder.setOrderNo();
+			newOrder.calculateDerivedFields();
+			view.displayOrder(newOrder);
+			boolean confirmed = view.getInput("Confirm addition of this order? ", new OrderValidators.ValidateConfirmation(), new OrderConverters.ConvertToBoolean());
+			if (!confirmed) {
+				view.print("");
+				return;
+			}
+			
+			boolean saveSuccessful = service.createOrder(newOrder);
+			if (saveSuccessful) {
+				view.print("Order saved successfully.");
+			} else {
+				view.print("Error occurred while trying to save order.");
+			}
 			view.print("");
-			return;
+		} catch (FileNotFoundException e) {
+			System.out.println("Error occurred. Unable to add order.");
 		}
-		
-		boolean saveSuccessful = service.createOrder(newOrder);
-		if (saveSuccessful) {
-			view.print("Order saved successfully.");
-		} else {
-			view.print("Error occurred while trying to save order.");
-		}
-		view.print("");
 	}
 
-	private Order getOrderDetails() {
+	private Order getOrderDetails() throws FileNotFoundException {
 		view.print("Please provide the order details:\n");
 		LocalDate orderDate = view.getInput("Order date (in format MMDDYYYY): ", new OrderValidators.ValidateDateForNewOrder(), new OrderConverters.ConvertToDate());
 		String customerName = view.getInput("Customer name: ", new OrderValidators.ValidateName(), new OrderConverters.ConvertToString());
