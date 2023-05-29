@@ -3,8 +3,9 @@ package com.wileyedge.model;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.Objects;
 
-public class Order {
+public class Order implements Cloneable {
 
 	private static int nextOrderNo = 1;
 	private int orderNo;
@@ -129,8 +130,8 @@ public class Order {
 
 	@Override
 	public String toString() {
-		return String.format("%-9d | %-20s | %-5s | %-8s | %-12s | %-8s | %-15s | %-10s | %-13s | %-11s | %-8s | %-8s",
-							orderNo,
+		return String.format("%-9s | %-20s | %-5s | %-8s | %-12s | %-8s | %-15s | %-10s | %-13s | %-11s | %-8s | %-8s",
+							orderNo == 0 ? "" : String.valueOf(orderNo),
 							customerName,
 							state.getStateAbbrev(),
 							state.getTaxRate().toString(),
@@ -144,6 +145,33 @@ public class Order {
 							total.toString()
 							);
 
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(area, customerName, labourCost, materialCost, orderDate, orderNo, product, state, tax,
+				total);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Order other = (Order) obj;
+		return Objects.equals(area, other.area) && Objects.equals(customerName, other.customerName)
+				&& Objects.equals(labourCost, other.labourCost) && Objects.equals(materialCost, other.materialCost)
+				&& Objects.equals(orderDate, other.orderDate) && orderNo == other.orderNo
+				&& Objects.equals(product, other.product) && Objects.equals(state, other.state)
+				&& Objects.equals(tax, other.tax) && Objects.equals(total, other.total);
+	}
+	
+	@Override
+	public Order clone() throws CloneNotSupportedException {
+		return (Order) super.clone();
 	}
 	
 }

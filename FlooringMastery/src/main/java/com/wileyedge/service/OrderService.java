@@ -27,6 +27,7 @@ public class OrderService {
 	}
 
 	public void createOrder(Order newOrder) throws IOException {
+		newOrder.setOrderNo();
 		dao.createOrder(newOrder);
 	}
 

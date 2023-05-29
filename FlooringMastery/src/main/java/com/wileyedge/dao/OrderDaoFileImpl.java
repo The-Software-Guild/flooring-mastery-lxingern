@@ -35,7 +35,7 @@ public class OrderDaoFileImpl implements OrderDao {
 		this.ordersFileNamePrefix = "Orders_";
 		loadNextOrderNo();
 	}
-
+ 
 	public OrderDaoFileImpl(String ordersFilePath,
 			String nextOrderNoFileName, String ordersFileNamePrefix) throws FileNotFoundException {
 		this.ordersFilePath = ordersFilePath;
@@ -77,7 +77,7 @@ public class OrderDaoFileImpl implements OrderDao {
 		if (orders.size() == 0) throw new OrderNotFoundException();
 		return orders;
 	}
-	
+	 
 	@Override
 	public Order getOrder(LocalDate date, int orderNo) throws FileNotFoundException, OrderNotFoundException {
 		List<Order> ordersForDate = getOrdersForDate(date);
@@ -90,18 +90,21 @@ public class OrderDaoFileImpl implements OrderDao {
 	public void createOrder(Order newOrder) throws IOException {
 		List<Order> ordersForDate = new ArrayList<>();
 		try {
-			ordersForDate = getOrdersForDate(newOrder.getOrderDate());
-		} catch (FileNotFoundException e) {
+			ordersForDate = getOrdersForDate(newOrder.getOrderDate());			
+		} catch (FileNotFoundException | OrderNotFoundException e) {
 		}
-		
 		ordersForDate.add(newOrder);
+		
 		saveOrders(ordersForDate, newOrder.getOrderDate());
 	}
 	
 	@Override
 	public void updateOrder(Order order) throws IOException {
 		LocalDate date = order.getOrderDate();
-		List<Order> ordersForDate = getOrdersForDate(date);
+		List<Order> ordersForDate = new ArrayList<>();
+		try {
+			ordersForDate = getOrdersForDate(date);
+		} catch (FileNotFoundException | OrderNotFoundException e) {}
 		Order orderToUpdate = ordersForDate.stream().filter(o -> o.getOrderNo() == order.getOrderNo()).findFirst().get();
 		orderToUpdate.setCustomerName(order.getCustomerName());
 		orderToUpdate.setState(order.getState());
@@ -155,6 +158,18 @@ public class OrderDaoFileImpl implements OrderDao {
 		try (PrintWriter out = new PrintWriter(new FileWriter(ordersFilePath + nextOrderNoFileName))) {
 			out.println(Order.getNextOrderNo());
 		}
+	}
+
+	public String getOrdersFilePath() {
+		return ordersFilePath;
+	}
+
+	public String getNextOrderNoFileName() {
+		return nextOrderNoFileName;
+	}
+
+	public String getOrdersFileNamePrefix() {
+		return ordersFileNamePrefix;
 	}
 
 }

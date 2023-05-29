@@ -81,7 +81,6 @@ public class OrderController {
 		Order newOrder = null;
 		try {
 			newOrder = getOrderDetails();
-			newOrder.setOrderNo();
 			newOrder.calculateDerivedFields();
 		} catch (FileNotFoundException e) {
 			System.out.println("Error occurred. Unable to add order.");

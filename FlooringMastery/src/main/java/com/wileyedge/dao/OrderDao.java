@@ -6,8 +6,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.wileyedge.model.Order;
-import com.wileyedge.model.Product;
-import com.wileyedge.model.State;
 
 public interface OrderDao {
 

@@ -22,6 +22,10 @@ public class ProductDaoFileImpl implements ProductDao {
 		this.productsFilePath = "data/data/Products.txt";
 	}
 
+	public ProductDaoFileImpl(String productsFilePath) {
+		this.productsFilePath = productsFilePath;
+	}
+
 	@Override
 	public List<Product> getProducts() throws FileNotFoundException {
 		List<Product> products = new ArrayList<>();

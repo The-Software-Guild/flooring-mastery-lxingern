@@ -22,6 +22,10 @@ public class StateDaoFileImpl implements StateDao {
 		this.taxesFilePath = "data/data/Taxes.txt";
 	}
 
+	public StateDaoFileImpl(String taxesFilePath) {
+		this.taxesFilePath = taxesFilePath;
+	}
+
 	@Override
 	public List<State> getStates() throws FileNotFoundException {
 		List<State> states = new ArrayList<>();

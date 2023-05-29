@@ -49,7 +49,7 @@ public class OrderViewConsoleImpl implements OrderView {
 		System.out.println();
 	}
 	
-	
+
 	@Override
 	public void displayProducts(List<Product> products) {
 		System.out.println("-----------------------------------------");

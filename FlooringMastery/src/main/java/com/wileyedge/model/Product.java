@@ -1,6 +1,7 @@
 package com.wileyedge.model;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 public class Product {
 
@@ -34,6 +35,25 @@ public class Product {
 
 	public BigDecimal getLabourCostPerSquareFoot() {
 		return labourCostPerSquareFoot;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(costPerSquareFoot, labourCostPerSquareFoot, productType);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Product other = (Product) obj;
+		return Objects.equals(costPerSquareFoot, other.costPerSquareFoot)
+				&& Objects.equals(labourCostPerSquareFoot, other.labourCostPerSquareFoot)
+				&& Objects.equals(productType, other.productType);
 	}
 	
 }
