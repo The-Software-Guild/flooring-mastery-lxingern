@@ -32,7 +32,7 @@ public final class OrderValidators {
 		public boolean test(String actionString) {
 			try {
 				int action = Integer.parseInt(actionString);
-				if (action < 1 || action > 6) throw new InvalidInputException("Invalid input: Input must be between 1 and 6 (inclusive).\n");
+				if (action < 1 || action > 5) throw new InvalidInputException("Invalid input: Input must be between 1 and 5 (inclusive).\n");
 				return true;
 			} catch (NumberFormatException e) {
 				System.out.println("Invalid input: Input must be an integer.\n");

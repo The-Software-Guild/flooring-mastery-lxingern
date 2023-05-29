@@ -29,8 +29,8 @@ public class OrderViewConsoleImpl implements OrderView {
 				"2. Add an Order\n" + 
 				"3. Edit an Order\n" +
 				"4. Remove an Order\n" + 
-				"5. Export All Data\n" +
-				"6. Quit\n");
+//				"5. Export All Data\n" +
+				"5. Quit\n");
 	}
 
 	@Override

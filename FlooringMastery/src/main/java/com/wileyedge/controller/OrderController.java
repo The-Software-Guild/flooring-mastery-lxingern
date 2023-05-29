@@ -50,8 +50,6 @@ public class OrderController {
 					removeOrder();
 					break;
 				case 5: 
-					break;
-				case 6: 
 					appRunning = false;
 			}
 		}
@@ -177,7 +175,6 @@ public class OrderController {
 		}
 		
 		List<Product> availableProducts = service.getProducts();
-		view.print("");
 		view.displayProducts(availableProducts);
 		Product product = null;
 		while (product == null) {
@@ -215,7 +212,6 @@ public class OrderController {
 		if (state != null) order.setState(state);
 		
 		List<Product> availableProducts = service.getProducts();
-		view.print("");
 		view.displayProducts(availableProducts);
 		Product product = null;
 		while (product == null) {
