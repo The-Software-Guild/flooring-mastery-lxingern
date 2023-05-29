@@ -13,8 +13,6 @@ public interface OrderDao {
 
 	List<Order> getOrdersForDate(LocalDate date) throws FileNotFoundException;
 	Order getOrder(LocalDate date, int orderNo) throws FileNotFoundException;
-	List<Product> getProducts() throws FileNotFoundException;
-	List<State> getStates() throws FileNotFoundException;
 	void createOrder(Order newOrder) throws IOException;
 	void updateOrder(Order order) throws IOException;
 	void deleteOrder(Order orderToRemove) throws IOException;

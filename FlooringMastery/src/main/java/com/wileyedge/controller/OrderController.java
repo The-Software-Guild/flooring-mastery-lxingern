@@ -17,19 +17,27 @@ import com.wileyedge.model.OrderValidators;
 import com.wileyedge.model.Product;
 import com.wileyedge.model.State;
 import com.wileyedge.service.OrderService;
+import com.wileyedge.service.ProductService;
+import com.wileyedge.service.StateService;
 import com.wileyedge.view.OrderView;
 
 @Controller
 public class OrderController {
 
 	@Autowired
-	private OrderService service;
+	private OrderService orderService;
+	
+	@Autowired
+	private ProductService productService; 
+	
+	@Autowired
+	private StateService stateService;
 	
 	@Autowired
 	private OrderView view;
 
 	public void run() {
-		view.print("\n<<Flooring Program>>\n");
+		view.print("<<Flooring Program>>\n");
 		boolean appRunning = true;
 		
 		while (appRunning) {
@@ -61,7 +69,7 @@ public class OrderController {
 		LocalDate date = view.getInput("View orders for date (in format MMDDYYYY): ", new OrderValidators.ValidateDate(), new OrderConverters.ConvertToDate());
 		List<Order> orders;
 		try {
-			orders = service.getOrdersForDate(date);
+			orders = orderService.getOrdersForDate(date);
 		} catch (FileNotFoundException | OrderNotFoundException e) {
 			view.print("No orders found for that date.\n");
 			return;
@@ -88,7 +96,7 @@ public class OrderController {
 		}
 			
 		try {
-			service.createOrder(newOrder);			
+			orderService.createOrder(newOrder);			
 			view.print("Order saved successfully.\n");
 		} catch (IOException e) {
 			view.print("Error occurred while trying to save order.\n");			
@@ -120,7 +128,7 @@ public class OrderController {
 		}
 		
 		try {
-			service.updateOrder(order);
+			orderService.updateOrder(order);
 			view.print("Order saved successfully.\n");			
 		} catch (IOException e) {
 			view.print("Error occurred while trying to save order.\n");			
@@ -144,7 +152,7 @@ public class OrderController {
 		}
 		
 		try {
-			service.deleteOrder(orderToRemove);
+			orderService.deleteOrder(orderToRemove);
 			view.print("Order deleted successfully.\n");
 		} catch (IOException e) {
 			view.print("Error occurred while trying to delete order.\n");		
@@ -155,7 +163,7 @@ public class OrderController {
 		LocalDate date = view.getInput("Order date (in format MMDDYYYY): ", new OrderValidators.ValidateDate(), new OrderConverters.ConvertToDate());
 		int orderNo = view.getInput("Order no.: ", new OrderValidators.ValidateOrderNo(), new OrderConverters.ConvertToInt());
 		view.print("");
-		return service.getOrder(date, orderNo);
+		return orderService.getOrder(date, orderNo);
 	}
 
 	private Order getOrderDetails() throws FileNotFoundException {
@@ -167,20 +175,20 @@ public class OrderController {
 		while (state == null) {
 			String stateString = view.getInput("State abbreviation: ");
 			try {
-				state = service.findState(stateString);			
+				state = stateService.findState(stateString);			
 				if (state == null) throw new InvalidInputException("Invalid input: State not recognised or we do not sell in that state.\n");
 			} catch (InvalidInputException e) {
 				System.out.println(e.getLocalizedMessage());
 			}
 		}
 		
-		List<Product> availableProducts = service.getProducts();
+		List<Product> availableProducts = productService.getProducts();
 		view.displayProducts(availableProducts);
 		Product product = null;
 		while (product == null) {
 			String productString = view.getInput("Product type: ");
 			try {
-				product = service.findProduct(productString);			
+				product = productService.findProduct(productString);			
 				if (product == null) throw new InvalidInputException("Invalid input: Product is not recognised.\n");
 			} catch (InvalidInputException e) {
 				System.out.println(e.getLocalizedMessage());
@@ -203,7 +211,7 @@ public class OrderController {
 			String stateString = view.getInputForUpdate("State abbreviation", order.getState().getStateAbbrev());
 			if (stateString.length() == 0) break;
 			try {
-				state = service.findState(stateString);			
+				state = stateService.findState(stateString);			
 				if (state == null) throw new InvalidInputException("Invalid input: State not recognised or we do not sell in that state.\n");
 			} catch (InvalidInputException e) {
 				System.out.println(e.getLocalizedMessage());
@@ -211,14 +219,14 @@ public class OrderController {
 		}
 		if (state != null) order.setState(state);
 		
-		List<Product> availableProducts = service.getProducts();
+		List<Product> availableProducts = productService.getProducts();
 		view.displayProducts(availableProducts);
 		Product product = null;
 		while (product == null) {
 			String productString = view.getInputForUpdate("Product type", order.getProduct().getProductType());
 			if (productString.length() == 0) break;
 			try {
-				product = service.findProduct(productString);			
+				product = productService.findProduct(productString);			
 				if (product == null) throw new InvalidInputException("Invalid input: Product is not recognised.\n");
 			} catch (InvalidInputException e) {
 				System.out.println(e.getLocalizedMessage());

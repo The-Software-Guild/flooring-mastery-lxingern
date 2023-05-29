@@ -25,27 +25,23 @@ import com.wileyedge.model.State;
 @Repository
 public class OrderDaoFileImpl implements OrderDao {
 	
-	private String productsFilePath;
-	private String taxesFilePath;
 	private String ordersFilePath;
 	private String nextOrderNoFileName;
 	private String ordersFileNamePrefix;
 	
 	public OrderDaoFileImpl() throws FileNotFoundException {
-		this.productsFilePath = "data/data/Products.txt";
-		this.taxesFilePath = "data/data/Taxes.txt";
 		this.ordersFilePath = "data/orders/";
 		this.nextOrderNoFileName = "next_order_no.txt";
 		this.ordersFileNamePrefix = "Orders_";
 		loadNextOrderNo();
 	}
 
-	public List<Product> getProducts() throws FileNotFoundException {
-		return loadProducts();
-	}
-
-	public List<State> getStates() throws FileNotFoundException {
-		return loadStates();
+	public OrderDaoFileImpl(String ordersFilePath,
+			String nextOrderNoFileName, String ordersFileNamePrefix) throws FileNotFoundException {
+		this.ordersFilePath = ordersFilePath;
+		this.nextOrderNoFileName = nextOrderNoFileName;
+		this.ordersFileNamePrefix = ordersFileNamePrefix;
+		loadNextOrderNo();
 	}
 	
 	@Override
@@ -123,40 +119,6 @@ public class OrderDaoFileImpl implements OrderDao {
 		ordersForDate = ordersForDate.stream().filter(o -> o.getOrderNo() != orderToRemove.getOrderNo()).collect(Collectors.toList());
 		
 		saveOrders(ordersForDate, date);
-	}
-	
-	private List<Product> loadProducts() throws FileNotFoundException {
-		List<Product> products = new ArrayList<>();
-		
-		try (Scanner sc = new Scanner(new BufferedReader(new FileReader(productsFilePath)))) {
-			sc.nextLine();
-			
-			while (sc.hasNextLine()) {
-				String currentLine = sc.nextLine();
-				String[] fields = currentLine.split(",");
-				Product product = new Product(fields[0], new BigDecimal(fields[1]), new BigDecimal(fields[2]));
-				products.add(product);
-			}			
-		}
-		
-		return products;
-	}
-	
-	private List<State> loadStates() throws FileNotFoundException {	
-		List<State> states = new ArrayList<>();
-		
-		try (Scanner sc = new Scanner(new BufferedReader(new FileReader(taxesFilePath)))) {
-			sc.nextLine();
-			
-			while (sc.hasNextLine()) {
-				String currentLine = sc.nextLine();
-				String[] fields = currentLine.split(",");
-				State state = new State(fields[0], fields[1], new BigDecimal(fields[2]));
-				states.add(state);
-			}			
-		}
-		
-		return states;
 	}
 
 	private void loadNextOrderNo() throws FileNotFoundException {

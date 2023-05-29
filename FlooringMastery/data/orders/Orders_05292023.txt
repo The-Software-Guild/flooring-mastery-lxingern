@@ -1,0 +1,2 @@
+OrderNumber::CustomerName::State::TaxRate::ProductType::CostPerSquareFoot::LaborCostPerSquareFoot::Area::MaterialCost::LaborCost::Tax::Total
+8::Xing Ern::WA::9.25::Wood::5.15::4.75::142.3::732.85::675.93::130.31::1539.09
