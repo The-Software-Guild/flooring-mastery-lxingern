@@ -1,0 +1,2 @@
+OrderNumber::CustomerName::State::TaxRate::ProductType::CostPerSquareFoot::LaborCostPerSquareFoot::Area::MaterialCost::LaborCost::Tax::Total
+6::Eye of Michael::KY::6.00::Tile::3.50::4.15::184.23::644.81::764.55::84.56::1493.92
