@@ -23,7 +23,7 @@ import com.wileyedge.model.Product;
 import com.wileyedge.model.State;
 
 @Repository
-public class OrderDaoFileImpl implements OrderDao {
+public class OrderDaoFileImpl extends DaoFileImpl implements OrderDao {
 	
 	private String ordersFilePath;
 	private String nextOrderNoFileName;
@@ -47,32 +47,25 @@ public class OrderDaoFileImpl implements OrderDao {
 	@Override
 	public List<Order> getOrdersForDate(LocalDate date) throws FileNotFoundException, OrderNotFoundException {
 		String orderFilePath = ordersFilePath + ordersFileNamePrefix + date.format(DateTimeFormatter.ofPattern("MMddyyyy")) + ".txt";
-		List<Order> orders = new ArrayList<>();
 		
-		try (Scanner sc = new Scanner(new BufferedReader(new FileReader(orderFilePath)))) {
-			sc.nextLine();
+		List<Order> orders = loadListFromFile(orderFilePath, "::", (fields) -> {
+			State state = new State(fields[2], new BigDecimal(fields[3]));
+			Product product = new Product(fields[4], new BigDecimal(fields[5]), new BigDecimal(fields[6]));
+			Order order = new Order(
+							date,
+							fields[1], 
+							state, 
+							product, 
+							new BigDecimal(fields[7])
+							);
+			order.setOrderNo(Integer.parseInt(fields[0]));
+			order.setMaterialCost(new BigDecimal(fields[8]));
+			order.setLabourCost(new BigDecimal(fields[9]));
+			order.setTax(new BigDecimal(fields[10]));
+			order.setTotal(new BigDecimal(fields[11]));
 			
-			while (sc.hasNextLine()) {
-				String currentLine = sc.nextLine();
-				String[] fields = currentLine.split("::");
-				State state = new State(fields[2], new BigDecimal(fields[3]));
-				Product product = new Product(fields[4], new BigDecimal(fields[5]), new BigDecimal(fields[6]));
-				Order order = new Order(
-								date,
-								fields[1], 
-								state, 
-								product, 
-								new BigDecimal(fields[7])
-								);
-				order.setOrderNo(Integer.parseInt(fields[0]));
-				order.setMaterialCost(new BigDecimal(fields[8]));
-				order.setLabourCost(new BigDecimal(fields[9]));
-				order.setTax(new BigDecimal(fields[10]));
-				order.setTotal(new BigDecimal(fields[11]));
-
-				orders.add(order);
-			}			
-		}
+			return order;
+		});
 
 		if (orders.size() == 0) throw new OrderNotFoundException();
 		return orders;
